@@ -8,7 +8,7 @@ from pynput import keyboard
 
 
 f = open("setupTimer.iOrchidConfig", "r")
-setuped = inqt(f.read())
+setuped = int(f.read())
 print(setuped)
 f.close()
 
