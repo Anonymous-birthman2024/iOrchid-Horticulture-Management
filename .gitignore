@@ -1,0 +1,15 @@
+time.txt
+**/time.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Data files (DO_NOT_MODIFY folders contain runtime data that the program modifies)
+**/data_DO_NOT_MODIFY/
+**/presets/
+
+# macOS
+.DS_Store
