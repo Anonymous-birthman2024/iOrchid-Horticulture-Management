@@ -8,6 +8,9 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Virtual environment
+venv/
+
 # Data files (DO_NOT_MODIFY folders contain runtime data that the program modifies)
 **/data_DO_NOT_MODIFY/
 **/presets/
