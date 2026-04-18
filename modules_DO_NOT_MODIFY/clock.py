@@ -9,8 +9,8 @@ def iOrchid_clock(zone):
 def iOrchid_seasonal_clock(zone):
     seasonFile = open(f"{zone}/data_DO_NOT_MODIFY/season(summer=1winter=2).txt", "w")
     month = datetime.now().month
-    if month == 9 or month == 10 or month == 11 or month == 12 or month == 1 or month == 2 or month == 3 or month == 4:
-        seasonFile.write("1")  # Summer 
-    if month == 5 or month == 6 or month == 7 or month == 8:
-        seasonFile.write("2")  # Winter
+    if month in [5, 6, 7, 8, 9, 10]:  # May to October - Summer (active growing season)
+        seasonFile.write("1")
+    else:  # November to April - Winter (dormant season)
+        seasonFile.write("2")
     seasonFile.close()

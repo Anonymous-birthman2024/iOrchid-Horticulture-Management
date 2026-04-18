@@ -25,7 +25,7 @@ def hum_act(zone):
     clock.iOrchid_clock(zone)
     clock.iOrchid_seasonal_clock(zone)
     season = open(f"{zone}/data_DO_NOT_MODIFY/season(summer=1winter=2).txt", "r").read().strip()
-    if season == "1":  # If it's summer
+    if season == "1":  # If it's summer (active growing season)
         with open(f"{zone}/data_DO_NOT_MODIFY/time.txt", "r") as timeFile, \
             open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "r") as preferenceFile, \
             open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r") as dataFile, \
@@ -40,8 +40,17 @@ def hum_act(zone):
                 print("[LOG] Humidifier turned on.")
             else:
                 print("[LOG] Humidifier turned off.")
-    else:
-        print("[LOG] It's winter, no need to adjust humidity.")
+    else:  # Winter season - less aggressive humidity control
+        with open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "r") as preferenceFile, \
+            open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r") as dataFile:
+
+            preference = int(preferenceFile.readline())
+            humidity = int(dataFile.read())
+
+            if humidity < preference - 10:  # Allow more tolerance in winter
+                print("[LOG] Humidifier turned on (winter mode).")
+            else:
+                print("[LOG] Humidifier turned off (winter mode).")
         
 # start_hum_monitor("Zone1")
 # start_hum_monitor("Zone2")

@@ -29,9 +29,9 @@ def temp_act(zone):
             print("[FATAL] YOUR PLANT(S) IS FREEZING! TEND TO IT IMMEDIATELY!")
         print("[LOG] Heater is on.")
     elif tempData > maxTempPreset:
-        print("[LOG] Heater is off.")
+        print("[LOG] Cooling system activated.")
     else:
-        print("[LOG] Temperature is within acceptable range. Heater is off.")
+        print("[LOG] Temperature is within acceptable range. Climate control is off.")
         
         
 # temp_monitor("Zone1")
