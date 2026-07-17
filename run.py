@@ -4,7 +4,7 @@ import modules_DO_NOT_MODIFY.light as light
 import modules_DO_NOT_MODIFY.clock as clock
 import time
 from datetime import datetime
-from pynput import keyboard
+import pynput.keyboard as keyboard
 
 
 f = open("setupTimer.iOrchidConfig", "r")
