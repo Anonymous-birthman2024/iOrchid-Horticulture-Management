@@ -107,6 +107,17 @@ def main():
     print("[LOG] This is a message that indicates a status of something")
     print("[WARN] This is a message that warns you of a hazard.")
     print("[FATAL] This message warns about hazards that will hurt your crop.")
+    # Launch the server script as a background process and keep the Popen
+    # object so we can terminate it when this program exits.
+    server_proc = subprocess.Popen(
+        ["/bin/bash", "/Users/hacker/iOrchid Horticulture Management/activateServer.sh"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+    print("[LOG] iOrchid server started at port localhost:5002.")
 
     # Start keyboard listener for 'q' to quit
     listener = keyboard.Listener(on_press=on_press)
@@ -155,12 +166,26 @@ def main():
         data_logging("light", "Zone6")
         light.light_act("Zone6")
         time.sleep(1)
-        subprocess.Popen([
-            "bash",
-            "/Users/hacker/iOrchid Horticulture Management/startServer.sh"
-        ])
+        
 
-        print("iOrchid server started")
+    # Main loop exited (user requested shutdown). Stop the keyboard listener
+    # and terminate the server process we started.
+    try:
+        listener.stop()
+    except Exception:
+        pass
+
+    # If server_proc exists and is still running, try to terminate it gracefully
+    try:
+        if 'server_proc' in locals() and server_proc.poll() is None:
+            print("[INFO] Stopping iOrchid server...")
+            server_proc.terminate()
+            try:
+                server_proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                server_proc.kill()
+    except Exception as e:
+        print(f"[WARN] Error shutting down server process: {e}")
 
 
 

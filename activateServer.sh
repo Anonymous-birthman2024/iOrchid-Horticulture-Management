@@ -1,11 +1,9 @@
-```sh
 #!/bin/bash
 
-cd "/Users/hacker/iOrchid Horticulture Management"
+cd "/Users/hacker/iOrchid Horticulture Management/public" || exit 1
 
-source "venv/bin/activate"
-
-cd public
+# Activate virtual environment (relative to `public` -> go up one level)
+source "../venv/bin/activate"
 
 python webServer2026.py
 ```
