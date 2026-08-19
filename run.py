@@ -1,3 +1,7 @@
+'''
+RUN THIS FILE ONCE ON THE SERVER ONLY!!!
+'''
+
 import modules_DO_NOT_MODIFY.temp as temp
 import modules_DO_NOT_MODIFY.hume as hume
 import modules_DO_NOT_MODIFY.light as light
@@ -5,6 +9,7 @@ import modules_DO_NOT_MODIFY.clock as clock
 import time
 from datetime import datetime
 import pynput.keyboard as keyboard
+import subprocess
 
 
 f = open("setupTimer.iOrchidConfig", "r")
@@ -149,6 +154,13 @@ def main():
         temp.temp_act("Zone6")
         data_logging("light", "Zone6")
         light.light_act("Zone6")
+        time.sleep(1)
+        subprocess.Popen([
+            "bash",
+            "/Users/hacker/iOrchid Horticulture Management/startServer.sh"
+        ])
+
+        print("iOrchid server started")
 
 
 

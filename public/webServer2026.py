@@ -1,15 +1,24 @@
 from flask import Flask
+
+'''
+IMPORTANT CONNECTION INFORMATION:
+
+ALWAYS HOST ON 192.168.1.81, PORT 5002!!!!!!!!!!
+
+
+'''
+
+express_port_change = ["localhost", '5002'] #Changing this will change the port that the web server is hosted on. Do not mess with this!
 username = "Lucy"
 app = Flask(__name__)
 
-#each file is a web page.
-index = open("./index.html", "r")
+# each file is a web page
+index = open("index.html", "r")
 programApp = open("iOrchid-Horticultural-Frontend.html", "r")
 
 @app.route("/")
-def hello_world():
+def home():
     return index.read().replace("{username}", username)
-    
 
 @app.route("/program")
 def program():
@@ -39,3 +48,6 @@ def zone5():
 def zone6():
     return "Content for Zone 6"
 
+
+if __name__ == "__main__":
+    app.run(host=f"{express_port_change[0]}", port=int(express_port_change[1]), debug=True)
