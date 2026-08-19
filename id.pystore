@@ -1,0 +1,23 @@
+'''
+
+--Bleachy PyStore Unique Software ID Document--
+
+name = {iOrchid Horticulture Management Suite}
+
+format = {{py3}}
+
+rPrice: {NZD $500}
+
+productionMethod = {custom}
+
+softwareID = {10110111101000101011000001000100011011010100110001101000101001100101111010010111111001011101000001100111}
+
+downloadable = {False}
+
+git = {available}
+
+dPublished = [200826, DDMMYY]
+
+developerName = {The iOrchid Group}
+
+'''
