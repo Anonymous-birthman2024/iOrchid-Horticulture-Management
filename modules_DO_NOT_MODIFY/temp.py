@@ -32,11 +32,3 @@ def temp_act(zone):
         print("[LOG] Cooling system activated.")
     else:
         print("[LOG] Temperature is within acceptable range. Climate control is off.")
-        
-        
-# temp_monitor("Zone1")
-# temp_monitor("Zone2")
-# temp_monitor("Zone3")
-# temp_monitor("Zone4")
-# temp_monitor("Zone5")
-# temp_monitor("Zone6")

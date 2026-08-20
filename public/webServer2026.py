@@ -3,12 +3,12 @@ from flask import Flask
 '''
 IMPORTANT CONNECTION INFORMATION:
 
-ALWAYS HOST ON 192.168.1.81, PORT 5002!!!!!!!!!!
+ALWAYS HOST ON 192.168.1.71, PORT 5002!!!!!!!!!!
 
 
 '''
 
-express_port_change = ["localhost", '5002'] #Changing this will change the port that the web server is hosted on. Do not mess with this!
+express_port_change = ["192.168.1.73", '5002'] #Changing this will change the port that the web server is hosted on. Do not mess with this!
 username = "Lucy"
 app = Flask(__name__)
 

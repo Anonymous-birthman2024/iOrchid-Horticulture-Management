@@ -1,5 +1,6 @@
 '''
 RUN THIS FILE ONCE ON THE SERVER ONLY!!!
+To quit, connect to the server via SSH and press 'q' to quit the program. This will also stop the web server.
 '''
 
 import modules_DO_NOT_MODIFY.temp as temp
