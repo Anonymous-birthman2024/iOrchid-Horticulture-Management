@@ -15,6 +15,12 @@ app = Flask(__name__)
 # each file is a web page
 index = open("index.html", "r")
 programApp = open("iOrchid-Horticultural-Frontend.html", "r")
+z1 = open("zone1.html", "r")
+z2 = open("zone2.html", "r")
+z3 = open("zone3.html", "r")
+z4 = open("zone4.html", "r")
+z5 = open("zone5.html", "r")
+z6 = open("zone6.html", "r")
 
 @app.route("/")
 def home():
