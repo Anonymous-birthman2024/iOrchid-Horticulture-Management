@@ -9,4 +9,5 @@ How to run iOrchid on Server:
 
 1. Connect to the server, and navigate to ~/iOrchid Horticulture Management/
 2. Run run.py. If running for the first time you will be prompted to set up.
-3. You are all set to use the server! The web interface (as of alpha) is hosted at localhost:5002.
+3. You are all set to use the server! The web interface (as of 2026) is hosted at localhost:5002.
+4. Download the official iOrchid Mobile app from the App Store!
