@@ -3,24 +3,30 @@ RUN THIS FILE ONCE ON THE SERVER ONLY!!!
 To quit, connect to the server via SSH and press 'q' to quit the program. This will also stop the web server.
 '''
 
+from pathlib import Path
+import time
+from datetime import datetime
+import subprocess
+
 import modules_DO_NOT_MODIFY.temp as temp
 import modules_DO_NOT_MODIFY.hume as hume
 import modules_DO_NOT_MODIFY.light as light
 import modules_DO_NOT_MODIFY.clock as clock
-import time
-from datetime import datetime
 import pynput.keyboard as keyboard
-import subprocess
 
 
-f = open("setupTimer.iOrchidConfig", "r")
-setuped = int(f.read())
+BASE_DIR = Path(__file__).resolve().parent
+CONFIG_PATH = BASE_DIR / "setupTimer.iOrchidConfig"
+
+
+with CONFIG_PATH.open("r", encoding="utf-8") as f:
+    setuped = int(f.read().strip())
 print(setuped)
-f.close()
+
 
 def setup():
     global setuped
-    invite_message='''
+    invite_message = '''
 Welcome to iOrchid Horticulture Management. This wizard will walk you through the steps needed
 to set up this software.
 '''
@@ -71,33 +77,35 @@ to set up this software.
         temp.temp_adj("Zone6")
         print("Saving Values...")
         time.sleep(2)
-        save = open("setupTimer.iOrchidConfig", "w")
-        save.write("1")
-        save.close()
+        CONFIG_PATH.write_text("1", encoding="utf-8")
 
     else:
         pass
 
+
 def data_logging(dataType, zone):
     now = datetime.now()
-    time = now.strftime("%Y%m%d-%H%M")
-    src = open(f"{zone}/data_DO_NOT_MODIFY/{dataType}_data.txt")
-    print(f"[INFO {time}] {dataType}:{src.read()}")
+    time_stamp = now.strftime("%Y%m%d-%H%M")
+    data_path = BASE_DIR / zone / "data_DO_NOT_MODIFY" / f"{dataType}_data.txt"
+    with data_path.open("r", encoding="utf-8") as src:
+        print(f"[INFO {time_stamp}] {dataType}:{src.read()}")
+
 
 running = True
+
 
 def on_press(key):
     global running
     if key == keyboard.KeyCode.from_char('q'):
         print("[INFO] Q pressed, shutting down loop...")
         running = False
-        return False  # Stop the listener
+        return False
+
 
 def stop_loop(e):
     global running
     print("[INFO] Q pressed, shutting down loop...")
     running = False
-
 
 
 def main():
@@ -108,10 +116,8 @@ def main():
     print("[LOG] This is a message that indicates a status of something")
     print("[WARN] This is a message that warns you of a hazard.")
     print("[FATAL] This message warns about hazards that will hurt your crop.")
-    # Launch the server script as a background process and keep the Popen
-    # object so we can terminate it when this program exits.
     server_proc = subprocess.Popen(
-        ["/bin/bash", "/Users/hacker/iOrchid Horticulture Management/activateServer.sh"],
+        ["/bin/bash", str(BASE_DIR / "activateServer.sh")],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
@@ -120,7 +126,6 @@ def main():
 
     print("[LOG] iOrchid server started at port localhost:5002.")
 
-    # Start keyboard listener for 'q' to quit
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
 
@@ -167,16 +172,12 @@ def main():
         data_logging("light", "Zone6")
         light.light_act("Zone6")
         time.sleep(1)
-        
 
-    # Main loop exited (user requested shutdown). Stop the keyboard listener
-    # and terminate the server process we started.
     try:
         listener.stop()
     except Exception:
         pass
 
-    # If server_proc exists and is still running, try to terminate it gracefully
     try:
         if 'server_proc' in locals() and server_proc.poll() is None:
             print("[INFO] Stopping iOrchid server...")
@@ -189,11 +190,4 @@ def main():
         print(f"[WARN] Error shutting down server process: {e}")
 
 
-
-
-    
-
-
-        
-        
 main()
