@@ -13,6 +13,7 @@ import modules_DO_NOT_MODIFY.hume as hume
 import modules_DO_NOT_MODIFY.light as light
 import modules_DO_NOT_MODIFY.clock as clock
 import pynput.keyboard as keyboard
+import modules_DO_NOT_MODIFY.grapher as grapher
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -23,6 +24,16 @@ with CONFIG_PATH.open("r", encoding="utf-8") as f:
     setuped = int(f.read().strip())
 print(setuped)
 
+def graphInit():
+    print('[LOG] Initializing Graphs...')
+    for i in range(6):
+        grapher.humeGrapherWeek(f"Zone{i+1}")
+        grapher.humeGrapherMonth(f"Zone{i+1}")
+        grapher.lightGrapherWeek(f"Zone{i+1}")
+        grapher.lightGrapherMonth(f"Zone{i+1}")
+        grapher.tempGrapherWeek(f"Zone{i+1}")
+        grapher.tempGrapherMonth(f"Zone{i+1}")
+    print('[LOG] Complete.')
 
 def setup():
     global setuped
@@ -110,24 +121,24 @@ def stop_loop(e):
 
 def main():
     setup()
-    print("Welcome! The software will now test it's logging capabilities.")
-    time.sleep(1)
-    print("[INFO YYYYMMDD-HHMM] This is a data message.")
-    print("[LOG] This is a message that indicates a status of something")
-    print("[WARN] This is a message that warns you of a hazard.")
-    print("[FATAL] This message warns about hazards that will hurt your crop.")
+    print("Welcome! The software will now test it's logging capabilities.") #log testing
+    time.sleep(1) #log testing
+    print("[INFO YYYYMMDD-HHMM] This is a data message.") #log testing
+    print("[LOG] This is a message that indicates a status of something") #log testing
+    print("[WARN] This is a message that warns you of a hazard.") #log testing
+    print("[FATAL] This message warns about hazards that will hurt your crop.") #log testing
     server_proc = subprocess.Popen(
         ["/bin/bash", str(BASE_DIR / "activateServer.sh")],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
         start_new_session=True,
-    )
+    ) #start server
 
-    print("[LOG] iOrchid server started at port localhost:5002.")
-
+    print("[LOG] iOrchid server started at port localhost:5002.") #server start log
+    graphInit() #Initialize graphs
     listener = keyboard.Listener(on_press=on_press)
-    listener.start()
+    listener.start() #start listening for keyboard input
 
     while running:
         data_logging("hum", "Zone1")

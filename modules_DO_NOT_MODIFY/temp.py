@@ -15,6 +15,12 @@ def temp_monitor(zone):
         dataFile.write(str(tempData))
         dataFile.close()
         time.sleep(300)
+
+def temp_monitor_return(zone):
+    while True:
+        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/temp_data.txt", "w")
+        a = dataFile.readline()
+        return a
         
         
         

@@ -17,6 +17,12 @@ def hum_monitor(zone):
         dataFile.close()
         time.sleep(300)
 
+def hum_monitor_return(zone):
+    while True:
+        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "w")
+        a = dataFile.readline()
+        return a
+
 # def start_hum_monitor(zone):
 #     thread = threading.Thread(target=hum_monitor, args=(zone,), daemon=True)
 #     thread.start()

@@ -15,6 +15,13 @@ def light_monitor(zone):
         dataFile.close()
         time.sleep(300)
 
+def light_monitor_return(zone):
+    while True:
+        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/light_data.txt", "w")
+        a = dataFile.readline()
+        return a
+
+
 def light_act(zone):
     print(zone)
     f = open(f"{zone}/data_DO_NOT_MODIFY/light_data.txt", "r")
