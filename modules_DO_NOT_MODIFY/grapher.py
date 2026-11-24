@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import hume
-import light
-import temp
+import modules_DO_NOT_MODIFY.hume as hume
+import modules_DO_NOT_MODIFY.light as light
+import modules_DO_NOT_MODIFY.temp as temp
 import time
 
 humeWeek = [

@@ -19,8 +19,9 @@ def hum_monitor(zone):
 
 def hum_monitor_return(zone):
     while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "w")
+        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r")
         a = dataFile.readline()
+        dataFile.close()
         return a
 
 # def start_hum_monitor(zone):
