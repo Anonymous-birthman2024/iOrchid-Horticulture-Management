@@ -1,40 +1,36 @@
 import random
 import time
+from pathlib import Path
+
+def _data_path(zone):
+    return Path(zone) / "data_DO_NOT_MODIFY"
 
 def temp_adj(zone):
     temp_min = int(input("min: "))
     temp_max = int(input("max: "))
-    settingsFile = open(f"{zone}/data_DO_NOT_MODIFY/presets/temp.txt", "w")
-    settingsFile.write(str(temp_min) + "\n" + str(temp_max))
-    settingsFile.close()
+    if temp_min >= temp_max:
+        raise ValueError("Minimum temperature must be lower than maximum temperature.")
+    (_data_path(zone) / "presets" / "temp.txt").write_text(f"{temp_min}\n{temp_max}", encoding="utf-8")
 
 def temp_monitor(zone):
     while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/temp_data.txt", "w")
-        tempData = random.randint(0, 40)
-        dataFile.write(str(tempData))
-        dataFile.close()
+        (_data_path(zone) / "temp_data.txt").write_text(str(random.randint(0, 40)), encoding="utf-8")
         time.sleep(300)
 
 def temp_monitor_return(zone):
-    while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/temp_data.txt", "w")
-        a = dataFile.readline()
-        return a
-        
-        
-        
+    return (_data_path(zone) / "temp_data.txt").read_text(encoding="utf-8").strip()
+
 def temp_act(zone):
-    presetsFile = open(f"{zone}/data_DO_NOT_MODIFY/presets/temp.txt", "r")
-    dataFile = open(f"{zone}/data_DO_NOT_MODIFY/temp_data.txt", "r")
-    minTempPreset = int(presetsFile.readline().strip())
-    maxTempPreset = int(presetsFile.readline().strip())
-    tempData = int(dataFile.readline().strip())
-    if tempData < minTempPreset:
-        if tempData < 11:
+    data_dir = _data_path(zone)
+    with (data_dir / "presets" / "temp.txt").open(encoding="utf-8") as presets_file:
+        min_temp = int(presets_file.readline().strip())
+        max_temp = int(presets_file.readline().strip())
+    temp_data = int((data_dir / "temp_data.txt").read_text(encoding="utf-8").strip())
+    if temp_data < min_temp:
+        if temp_data < 11:
             print("[FATAL] YOUR PLANT(S) IS FREEZING! TEND TO IT IMMEDIATELY!")
         print("[LOG] Heater is on.")
-    elif tempData > maxTempPreset:
+    elif temp_data > max_temp:
         print("[LOG] Cooling system activated.")
     else:
         print("[LOG] Temperature is within acceptable range. Climate control is off.")
