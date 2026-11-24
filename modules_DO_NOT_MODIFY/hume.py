@@ -1,67 +1,38 @@
 import random
 import time
+from pathlib import Path
 import modules_DO_NOT_MODIFY.clock as clock
-import threading
-# import clock
+
+def _data_dir(zone):
+    return Path(zone) / "data_DO_NOT_MODIFY"
 
 def hum_adj(zone):
     hum_min = int(input("min: "))
     hum_max = int(input("max: "))
-    with open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "w") as f:
-        f.write(str(hum_min) + "\n" + str(hum_max))
+    if not 0 <= hum_min < hum_max <= 100:
+        raise ValueError("Humidity values must satisfy 0 <= min < max <= 100.")
+    (_data_dir(zone) / "presets" / "hum.txt").write_text(f"{hum_min}\n{hum_max}", encoding="utf-8")
 
 def hum_monitor(zone):
     while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "w")
-        dataFile.write(str(random.randint(50, 100)))
-        dataFile.close()
+        (_data_dir(zone) / "hum_data.txt").write_text(str(random.randint(50, 100)), encoding="utf-8")
         time.sleep(300)
 
 def hum_monitor_return(zone):
-    while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r")
-        a = dataFile.readline()
-        dataFile.close()
-        return a
-
-# def start_hum_monitor(zone):
-#     thread = threading.Thread(target=hum_monitor, args=(zone,), daemon=True)
-#     thread.start()
+    return (_data_dir(zone) / "hum_data.txt").read_text(encoding="utf-8").strip()
 
 def hum_act(zone):
     clock.iOrchid_clock(zone)
     clock.iOrchid_seasonal_clock(zone)
-    season = open(f"{zone}/data_DO_NOT_MODIFY/season(summer=1winter=2).txt", "r").read().strip()
-    if season == "1":  # If it's summer (active growing season)
-        with open(f"{zone}/data_DO_NOT_MODIFY/time.txt", "r") as timeFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "r") as preferenceFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r") as dataFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/temp_data.txt", "r") as tempdataFile:
-
-            current_hour = int(timeFile.read())
-            preference = int(preferenceFile.readline())
-            humidity = int(dataFile.read())
-            temperature = int(tempdataFile.read())
-
-            if humidity <= preference and temperature >= 30 and 9 <= current_hour <= 17:
-                print("[LOG] Humidifier turned on.")
-            else:
-                print("[LOG] Humidifier turned off.")
-    else:  # Winter season - less aggressive humidity control
-        with open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "r") as preferenceFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r") as dataFile:
-
-            preference = int(preferenceFile.readline())
-            humidity = int(dataFile.read())
-
-            if humidity < preference - 10:  # Allow more tolerance in winter
-                print("[LOG] Humidifier turned on (winter mode).")
-            else:
-                print("[LOG] Humidifier turned off (winter mode).")
-        
-# start_hum_monitor("Zone1")
-# start_hum_monitor("Zone2")
-# start_hum_monitor("Zone3")
-# start_hum_monitor("Zone4")
-# start_hum_monitor("Zone5")
-# start_hum_monitor("Zone6")
+    data_dir = _data_dir(zone)
+    season = (data_dir / "season(summer=1winter=2).txt").read_text(encoding="utf-8").strip()
+    with (data_dir / "presets" / "hum.txt").open(encoding="utf-8") as settings:
+        minimum = int(settings.readline().strip())
+        maximum = int(settings.readline().strip())
+    humidity = int((data_dir / "hum_data.txt").read_text(encoding="utf-8").strip())
+    if season == "1":
+        temperature = int((data_dir / "temp_data.txt").read_text(encoding="utf-8").strip())
+        should_run = humidity <= minimum and temperature >= 30 and 9 <= int((data_dir / "time.txt").read_text()) <= 17
+        print("[LOG] Humidifier turned on." if should_run else "[LOG] Humidifier turned off.")
+    else:
+        print("[LOG] Humidifier turned on (winter mode)." if humidity < minimum - 10 else "[LOG] Humidifier turned off (winter mode).")
