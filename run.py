@@ -1,204 +1,123 @@
-'''
-RUN THIS FILE ONCE ON THE SERVER ONLY!!!
-To quit, connect to the server via SSH and press 'q' to quit the program. This will also stop the web server.
-'''
-
+"""iOrchid controller entry point. Run this file once on the server."""
 from pathlib import Path
-import time
 from datetime import datetime
 import subprocess
+import threading
+import time
 
 import modules_DO_NOT_MODIFY.temp as temp
 import modules_DO_NOT_MODIFY.hume as hume
 import modules_DO_NOT_MODIFY.light as light
-import modules_DO_NOT_MODIFY.clock as clock
-import pynput.keyboard as keyboard
 import modules_DO_NOT_MODIFY.grapher as grapher
 
+try:
+    from pynput import keyboard
+except ImportError:
+    keyboard = None
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "setupTimer.iOrchidConfig"
-
-
-with CONFIG_PATH.open("r", encoding="utf-8") as f:
-    setuped = int(f.read().strip())
-print(setuped)
-
-def graphInit():
-    print('[LOG] Initializing Graphs...')
-    for i in range(6):
-        grapher.humeGrapherWeek(f"Zone{i+1}")
-        grapher.humeGrapherMonth(f"Zone{i+1}")
-        grapher.lightGrapherWeek(f"Zone{i+1}")
-        grapher.lightGrapherMonth(f"Zone{i+1}")
-        grapher.tempGrapherWeek(f"Zone{i+1}")
-        grapher.tempGrapherMonth(f"Zone{i+1}")
-    print('[LOG] Complete.')
-
-def setup():
-    global setuped
-    invite_message = '''
-Welcome to iOrchid Horticulture Management. This wizard will walk you through the steps needed
-to set up this software.
-'''
-    if setuped == 0:
-        print(invite_message)
-        time.sleep(1)
-        print("Step 1. Establish your values")
-        time.sleep(1)
-        print("The wizard will now ask you a few questions about your orchid's environment requirements.")
-        time.sleep(1)
-        print("Humidity Values. Fill out for 6 different zones")
-        time.sleep(1)
-        hume.hum_adj("Zone1")
-        print("Saving Values...")
-        time.sleep(2)
-        hume.hum_adj("Zone2")
-        print("Saving Values...")
-        time.sleep(2)
-        hume.hum_adj("Zone3")
-        print("Saving Values...")
-        time.sleep(2)
-        hume.hum_adj("Zone4")
-        print("Saving Values...")
-        time.sleep(2)
-        hume.hum_adj("Zone5")
-        print("Saving Values...")
-        time.sleep(2)
-        hume.hum_adj("Zone6")
-        print("Saving Values...")
-        time.sleep(2)
-        print("Temperature Values. Fill out for 6 different zones")
-        time.sleep(1)
-        temp.temp_adj("Zone1")
-        print("Saving Values...")
-        time.sleep(2)
-        temp.temp_adj("Zone2")
-        print("Saving Values...")
-        time.sleep(2)
-        temp.temp_adj("Zone3")
-        print("Saving Values...")
-        time.sleep(2)
-        temp.temp_adj("Zone4")
-        print("Saving Values...")
-        time.sleep(2)
-        temp.temp_adj("Zone5")
-        print("Saving Values...")
-        time.sleep(2)
-        temp.temp_adj("Zone6")
-        print("Saving Values...")
-        time.sleep(2)
-        CONFIG_PATH.write_text("1", encoding="utf-8")
-
-    else:
-        pass
-
-
-def data_logging(dataType, zone):
-    now = datetime.now()
-    time_stamp = now.strftime("%Y%m%d-%H%M")
-    data_path = BASE_DIR / zone / "data_DO_NOT_MODIFY" / f"{dataType}_data.txt"
-    with data_path.open("r", encoding="utf-8") as src:
-        print(f"[INFO {time_stamp}] {dataType}:{src.read()}")
-
-
+ZONES = [f"Zone{i}" for i in range(1, 7)]
 running = True
 
+def graphInit():
+    """Create initial graph snapshots without blocking for historical samples."""
+    for zone in ZONES:
+        for graph in (grapher.humeGrapherWeek, grapher.humeGrapherMonth,
+                      grapher.lightGrapherWeek, grapher.lightGrapherMonth,
+                      grapher.tempGrapherWeek, grapher.tempGrapherMonth):
+            try:
+                graph(zone)
+            except (OSError, ValueError):
+                # A zone may not have a valid reading until its monitor starts.
+                print(f"[WARN] Skipping initial graph for {zone}; sensor data unavailable.")
+
+def setup():
+    try:
+        setuped = int(CONFIG_PATH.read_text(encoding="utf-8").strip() or "0")
+    except (FileNotFoundError, ValueError):
+        setuped = 0
+    if setuped:
+        return
+    print("Welcome to iOrchid Horticulture Management setup.")
+    for zone in ZONES:
+        print(f"Humidity settings for {zone}")
+        hume.hum_adj(zone)
+    for zone in ZONES:
+        print(f"Temperature settings for {zone}")
+        temp.temp_adj(zone)
+    CONFIG_PATH.write_text("1", encoding="utf-8")
+
+def data_logging(data_type, zone):
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M")
+    path = BASE_DIR / zone / "data_DO_NOT_MODIFY" / f"{data_type}_data.txt"
+    try:
+        value = path.read_text(encoding="utf-8").strip()
+        print(f"[INFO {timestamp}] {zone} {data_type}: {value}")
+    except OSError as exc:
+        print(f"[WARN] Cannot read {path}: {exc}")
 
 def on_press(key):
     global running
-    if key == keyboard.KeyCode.from_char('q'):
-        print("[INFO] Q pressed, shutting down loop...")
+    if key == keyboard.KeyCode.from_char("q"):
+        print("[INFO] Q pressed, shutting down.")
         running = False
         return False
 
-
-def stop_loop(e):
-    global running
-    print("[INFO] Q pressed, shutting down loop...")
-    running = False
-
-
 def main():
+    global running
     setup()
-    print("Welcome! The software will now test it's logging capabilities.") #log testing
-    time.sleep(1) #log testing
-    print("[INFO YYYYMMDD-HHMM] This is a data message.") #log testing
-    print("[LOG] This is a message that indicates a status of something") #log testing
-    print("[WARN] This is a message that warns you of a hazard.") #log testing
-    print("[FATAL] This message warns about hazards that will hurt your crop.") #log testing
+
+    # Start sensor simulators once per zone. Threads exit with the process.
+    monitor_threads = []
+    for zone in ZONES:
+        for monitor in (hume.hum_monitor, temp.temp_monitor, light.light_monitor):
+            thread = threading.Thread(target=monitor, args=(zone,), daemon=True)
+            thread.start()
+            monitor_threads.append(thread)
+    time.sleep(0.2)
+
     server_proc = subprocess.Popen(
         ["/bin/bash", str(BASE_DIR / "activateServer.sh")],
+        cwd=str(BASE_DIR),
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
         start_new_session=True,
-    ) #start server
+    )
+    print("[LOG] iOrchid server started on port 5002.")
+    graphInit()
 
-    print("[LOG] iOrchid server started at port localhost:5002.") #server start log
-    graphInit() #Initialize graphs
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start() #start listening for keyboard input
-
-    while running:
-        data_logging("hum", "Zone1")
-        hume.hum_act("Zone1")
-        data_logging("temp", "Zone1")
-        temp.temp_act("Zone1")
-        data_logging("light", "Zone1")
-        light.light_act("Zone1")
-        time.sleep(1)
-        data_logging("hum", "Zone2")
-        hume.hum_act("Zone2")
-        data_logging("temp", "Zone2")
-        temp.temp_act("Zone2")
-        data_logging("light", "Zone2")
-        light.light_act("Zone2")
-        time.sleep(1)
-        data_logging("hum", "Zone3")
-        hume.hum_act("Zone3")
-        data_logging("temp", "Zone3")
-        temp.temp_act("Zone3")
-        data_logging("light", "Zone3")
-        light.light_act("Zone3")
-        time.sleep(1)
-        data_logging("hum", "Zone4")
-        hume.hum_act("Zone4")
-        data_logging("temp", "Zone4")
-        temp.temp_act("Zone4")
-        data_logging("light", "Zone4")
-        light.light_act("Zone4")
-        time.sleep(1)
-        data_logging("hum", "Zone5")
-        hume.hum_act("Zone5")
-        data_logging("temp", "Zone5")
-        temp.temp_act("Zone5")
-        data_logging("light", "Zone5")
-        light.light_act("Zone5")
-        time.sleep(1)
-        data_logging("hum", "Zone6")
-        hume.hum_act("Zone6")
-        data_logging("temp", "Zone6")
-        temp.temp_act("Zone6")
-        data_logging("light", "Zone6")
-        light.light_act("Zone6")
-        time.sleep(1)
+    listener = None
+    if keyboard is not None:
+        listener = keyboard.Listener(on_press=on_press)
+        listener.start()
+    else:
+        print("[WARN] pynput is unavailable; use Ctrl+C to stop the controller.")
 
     try:
-        listener.stop()
-    except Exception:
-        pass
-
-    try:
-        if 'server_proc' in locals() and server_proc.poll() is None:
-            print("[INFO] Stopping iOrchid server...")
+        while running:
+            for zone in ZONES:
+                for data_type, action in (
+                    ("hum", hume.hum_act),
+                    ("temp", temp.temp_act),
+                    ("light", light.light_act),
+                ):
+                    data_logging(data_type, zone)
+                    action(zone)
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("[INFO] Shutdown requested.")
+    finally:
+        running = False
+        if listener is not None:
+            listener.stop()
+        if server_proc.poll() is None:
             server_proc.terminate()
             try:
                 server_proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 server_proc.kill()
-    except Exception as e:
-        print(f"[WARN] Error shutting down server process: {e}")
 
-
-main()
+if __name__ == "__main__":
+    main()
