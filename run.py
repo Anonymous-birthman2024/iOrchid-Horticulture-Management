@@ -66,6 +66,8 @@ def on_press(key):
 
 def main():
     global running
+    import os
+    os.chdir(BASE_DIR)
     setup()
 
     # Start sensor simulators once per zone. Threads exit with the process.
