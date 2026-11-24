@@ -1,9 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-cd "/Users/hacker/iOrchid Horticulture Management/public" || exit 1
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$SCRIPT_DIR"
 
-# Activate virtual environment (relative to `public` -> go up one level)
-source "../venv/bin/activate"
+if [[ -f "$PROJECT_DIR/venv/bin/activate" ]]; then
+    source "$PROJECT_DIR/venv/bin/activate"
+fi
 
-python webServer2026.py
-```
+exec python3 "$SCRIPT_DIR/webServer2026.py"
