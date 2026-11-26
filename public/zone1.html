@@ -1,20 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="generalStyle.css">
-    </head>
-<h1> Weekly Data </h1>
-<h2> Data Graphs (Humidity)</h2>
-<img src="/graphs/Zone1/hum/graph.png" alt="Weekly Humidity Data Graph">
-<h2> Data Graphs (Light)</h2>
-<img src="/graphs/Zone1/light/graph.png" alt="Weekly Light Data Graph">
-<h2> Data Graphs (Temperature)</h2>
-<img src="/graphs/Zone1/temp/graph.png" alt="Weekly Temperature Data Graph">
-<h1> Monthly Data </h1>
-<h2> Data Graphs (Humidity)</h2>
-<img src="/graphs/Zone1/hum/graph2.png" alt="Monthly Humidity Data Graph">
-<h2> Data Graphs (Light)</h2>
-<img src="/graphs/Zone1/light/graph2.png" alt="Monthly Light Data Graph">
-<h2> Data Graphs (Temperature)</h2>
-<img src="/graphs/Zone1/temp/graph2.png" alt="Monthly Temperature Data Graph">
-
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b18">
+  <title>iOrchid | Zone 1 Data</title>
+  <link rel="stylesheet" href="generalStyle.css">
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">iO</div>
+        <div><div class="title">iOrchid</div><div class="subtitle">Horticulture Management</div></div>
+      </div>
+      <a class="btn secondary" href="/program">All zones</a>
+    </header>
+    <nav class="zone-strip" aria-label="Select growing zone">
+      <a class="zone-pill active" href="/z1" aria-current="page">Zone 1</a>
+      <a class="zone-pill" href="/z2">Zone 2</a>
+      <a class="zone-pill" href="/z3">Zone 3</a>
+      <a class="zone-pill" href="/z4">Zone 4</a>
+      <a class="zone-pill" href="/z5">Zone 5</a>
+      <a class="zone-pill" href="/z6">Zone 6</a>
+    </nav>
+    <section class="page-heading">
+      <h1>Zone 1</h1>
+      <p class="muted">Environmental monitoring history for humidity, light and temperature.</p>
+    </section>
+    <h2 class="period-heading">Weekly data</h2>
+      <section class="graph-section"><h2>u</h2><img src="/graphs/Zone1/h/graph.png" alt="Weekly u data graph for Zone 1" loading="lazy"></section>
+      <section class="graph-section"><h2>i</h2><img src="/graphs/Zone1/l/graph.png" alt="Weekly i data graph for Zone 1" loading="lazy"></section>
+      <section class="graph-section"><h2>e</h2><img src="/graphs/Zone1/t/graph.png" alt="Weekly e data graph for Zone 1" loading="lazy"></section>
+    <h2 class="period-heading">Monthly data</h2>
+      <section class="graph-section"><h2>u</h2><img src="/graphs/Zone1/h/graph2.png" alt="Monthly u data graph for Zone 1" loading="lazy"></section>
+      <section class="graph-section"><h2>i</h2><img src="/graphs/Zone1/l/graph2.png" alt="Monthly i data graph for Zone 1" loading="lazy"></section>
+      <section class="graph-section"><h2>e</h2><img src="/graphs/Zone1/t/graph2.png" alt="Monthly e data graph for Zone 1" loading="lazy"></section>
+    <footer class="footer"><a href="/program">Back to all zones</a><span>iOrchid Horticulture Management</span></footer>
+  </main>
+</body>
+</html>
