@@ -1,68 +1,61 @@
 import random
-import threading
 import time
+
 import modules_DO_NOT_MODIFY.clock as clock
-import threading
-# import clock
+
 
 def hum_adj(zone):
     hum_min = int(input("min: "))
     hum_max = int(input("max: "))
-    with open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "w") as f:
-        f.write(str(hum_min) + "\n" + str(hum_max))
+    if not 0 <= hum_min < hum_max <= 100:
+        raise ValueError("Humidity limits must satisfy 0 <= min < max <= 100.")
+    with open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "w", encoding="utf-8") as f:
+        f.write(f"{hum_min}\n{hum_max}\n")
+
 
 def hum_monitor(zone):
+    """Generate simulated humidity readings (replace with hardware input when available)."""
     while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "w")
-        dataFile.write(str(random.randint(50, 100)))
-        dataFile.close()
+        with open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "w", encoding="utf-8") as data_file:
+            data_file.write(str(random.randint(50, 100)))
         time.sleep(300)
 
-def hum_monitor_return(zone):
-    while True:
-        dataFile = open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r")
-        a = dataFile.readline()
-        dataFile.close()
-        return a
 
-# def start_hum_monitor(zone):
-#     thread = threading.Thread(target=hum_monitor, args=(zone,), daemon=True)
-#     thread.start()
+def hum_monitor_return(zone):
+    with open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r", encoding="utf-8") as data_file:
+        return data_file.readline().strip()
+
 
 def hum_act(zone):
     clock.iOrchid_clock(zone)
     clock.iOrchid_seasonal_clock(zone)
-    season = open(f"{zone}/data_DO_NOT_MODIFY/season(summer=1winter=2).txt", "r").read().strip()
-    if season == "1":  # If it's summer (active growing season)
-        with open(f"{zone}/data_DO_NOT_MODIFY/time.txt", "r") as timeFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "r") as preferenceFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r") as dataFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/temp_data.txt", "r") as tempdataFile:
 
-            current_hour = int(timeFile.read())
-            preference = int(preferenceFile.readline())
-            humidity = int(dataFile.read())
-            temperature = int(tempdataFile.read())
+    base = f"{zone}/data_DO_NOT_MODIFY"
+    with open(f"{base}/season(summer=1winter=2)", "r", encoding="utf-8") as f:
+        season = f.read().strip()
+    with open(f"{base}/presets/hum.txt", "r", encoding="utf-8") as f:
+        limits = [int(line.strip()) for line in f if line.strip()]
+    if len(limits) != 2:
+        print(f"[WARN] {zone}: humidity preset must contain minimum and maximum values.")
+        return
+    hum_min, hum_max = limits
 
-            if humidity <= preference and temperature >= 30 and 9 <= current_hour <= 17:
-                print("[LOG] Humidifier turned on.")
-            else:
-                print("[LOG] Humidifier turned off.")
-    else:  # Winter season - less aggressive humidity control
-        with open(f"{zone}/data_DO_NOT_MODIFY/presets/hum.txt", "r") as preferenceFile, \
-            open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "r") as dataFile:
+    with open(f"{base}/hum_data.txt", "r", encoding="utf-8") as f:
+        humidity = int(f.read().strip())
 
-            preference = int(preferenceFile.readline())
-            humidity = int(dataFile.read())
+    if not 0 <= humidity <= 100:
+        print(f"[WARN] {zone}: invalid humidity reading {humidity}%.")
+        return
 
-            if humidity < preference - 10:  # Allow more tolerance in winter
-                print("[LOG] Humidifier turned on (winter mode).")
-            else:
-                print("[LOG] Humidifier turned off (winter mode).")
-        
-# start_hum_monitor("Zone1")
-# start_hum_monitor("Zone2")
-# start_hum_monitor("Zone3")
-# start_hum_monitor("Zone4")
-# start_hum_monitor("Zone5")
-# start_hum_monitor("Zone6")
+    if humidity > hum_max:
+        print(f"[WARN] Humidity too high ({humidity}%). Humidifier off; increase ventilation.")
+    elif humidity < hum_min:
+        # Winter mode permits a lower humidity before requesting humidification.
+        threshold = max(0, hum_min - 10) if season == "2" else hum_min
+        if humidity < threshold:
+            print("[LOG] Humidifier turned on (winter mode)." if season == "2"
+                  else "[LOG] Humidifier turned on.")
+        else:
+            print("[LOG] Humidity acceptable for winter mode; humidifier off.")
+    else:
+        print("[LOG] Humidity is within acceptable range. Humidifier off.")

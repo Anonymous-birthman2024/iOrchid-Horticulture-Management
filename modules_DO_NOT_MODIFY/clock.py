@@ -1,16 +1,25 @@
 from datetime import datetime
 
+
 def iOrchid_clock(zone):
-    timeFile = open(f"{zone}/data_DO_NOT_MODIFY/time.txt", "w")
-    hour = datetime.now().hour
-    timeFile.write(str(hour))
-    timeFile.close()
-    
+    """Write the current local hour for the zone."""
+    path = f"{zone}/data_DO_NOT_MODIFY/time.txt"
+    with open(path, "w", encoding="utf-8") as time_file:
+        time_file.write(str(datetime.now().hour))
+
+
 def iOrchid_seasonal_clock(zone):
-    seasonFile = open(f"{zone}/data_DO_NOT_MODIFY/season(summer=1winter=2).txt", "w")
+    """
+    Set the seasonal mode for the Southern Hemisphere.
+
+    Summer: November through April (1)
+    Winter: May through October (2)
+
+    This matches the New Zealand/Larnaco seasonal convention used by
+    the current iOrchid deployment, rather than Northern Hemisphere months.
+    """
     month = datetime.now().month
-    if month in [5, 6, 7, 8, 9, 10]:  # May to October - Summer (active growing season)
-        seasonFile.write("1")
-    else:  # November to April - Winter (dormant season)
-        seasonFile.write("2")
-    seasonFile.close()
+    season = "1" if month in (11, 12, 1, 2, 3, 4) else "2"
+    path = f"{zone}/data_DO_NOT_MODIFY/season(summer=1winter=2).txt"
+    with open(path, "w", encoding="utf-8") as season_file:
+        season_file.write(season)
