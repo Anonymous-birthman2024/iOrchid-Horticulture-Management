@@ -1,12 +1,15 @@
 from pathlib import Path
+import sys
 import threading
 
 from flask import Flask, abort, send_from_directory
 
-from modules_DO_NOT_MODIFY import grapher
-
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
+if str(PROJECT_DIR) not in sys.path:
+    sys.path.insert(0, str(PROJECT_DIR))
+
+from modules_DO_NOT_MODIFY import grapher
 username = "Lucy"
 app = Flask(__name__, static_folder=str(BASE_DIR), static_url_path="")
 
