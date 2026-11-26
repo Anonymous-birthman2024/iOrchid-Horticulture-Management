@@ -1,6 +1,7 @@
 import random
 import time
 
+from modules_DO_NOT_MODIFY.sensor_storage import append_history, write_current_reading
 import modules_DO_NOT_MODIFY.clock as clock
 
 
@@ -16,8 +17,12 @@ def hum_adj(zone):
 def hum_monitor(zone):
     """Generate simulated humidity readings (replace with hardware input when available)."""
     while True:
-        with open(f"{zone}/data_DO_NOT_MODIFY/hum_data.txt", "w", encoding="utf-8") as data_file:
-            data_file.write(str(random.randint(50, 100)))
+        humidity = random.randint(50, 100)
+        try:
+            write_current_reading(zone, "hum_data.txt", humidity)
+            append_history(zone, "hume", humidity)
+        except OSError as exc:
+            print(f"[WARN] {zone}: could not save humidity reading: {exc}")
         time.sleep(300)
 
 
