@@ -23,11 +23,20 @@ struct EmbeddedWebView: UIViewRepresentable {
 // 2. Display it on a blank page
 struct BlankEmbedPage: View {
     var body: some View {
-        ZEdgeStack {
+        ZStack {
             Color.white.ignoresSafeArea() // Keeps the background blank
             
             EmbeddedWebView(urlString: "https://localhost:5002") // placeholder for future standalone server.
                 .ignoresSafeArea(edges: .bottom) // Embed fills the screen
+        }
+    }
+}
+
+@main
+struct iOrchidMobileApp: App {
+    var body: some Scene {
+        WindowGroup {
+            BlankEmbedPage()
         }
     }
 }
