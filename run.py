@@ -77,6 +77,8 @@ def main():
     )
     print("[LOG] iOrchid server started on port 5002.")
     graphInit()
+    for zone in ZONES:
+        grapher.start_graph_refresh(zone, interval=300)
 
     try:
         while running:
