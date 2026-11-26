@@ -79,7 +79,15 @@ def _graph_sensor(zone, sensor, days, output_name):
         if normalized_samples:
             timestamps = [item[0] for item in normalized_samples]
             values = [item[1] for item in normalized_samples]
-            ax.plot(timestamps, values, linewidth=1.4)
+            # Markers make a graph visible even when only one sample exists.
+            ax.plot(timestamps, values, linewidth=1.6, marker="o", markersize=5)
+            if sensor == "hume":
+                ax.set_ylim(0, 100)
+            if len(timestamps) == 1:
+                ax.set_xlim(
+                    timestamps[0] - timedelta(minutes=30),
+                    timestamps[0] + timedelta(minutes=30),
+                )
             ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b\n%H:%M"))
             fig.autofmt_xdate()
         else:
