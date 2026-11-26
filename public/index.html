@@ -1,38 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>iOrchid Horticulture Management</title>
-        <link rel="stylesheet" href="generalStyle.css">
-        <style>
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                text-align: center;
-            }
-
-            .home-panel {
-                max-width: 900px;
-                padding: 32px;
-            }
-
-            .home-panel > * {
-                margin-bottom: 16px;
-            }
-
-            a {
-                display: inline-block;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="home-panel">
-            <h2>Hello, {username}!</h2>
-            <p>Click the link below to access the program</p>
-            <a href="/program">Access Program</a>
-            <p>About: iOrchid Horticulture Management is a program designed to help orchid growers manage their orchid collection. It provides features such as watering reminders, fertilizing schedules, and growth tracking. The program is accessible through a web interface, allowing users to easily access their orchid information from any device with internet access.</p>
-        </div>
-    </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b18">
+  <title>iOrchid Horticulture Management</title>
+  <link rel="stylesheet" href="generalStyle.css">
+</head>
+<body>
+  <main class="home-panel">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">iO</div>
+      <div><div class="title">iOrchid</div><div class="subtitle">Horticulture Management</div></div>
+    </div>
+    <h1>Hello, {username}!</h1>
+    <p>Manage your orchid collection with a clear overview of your growing zones, monitoring data and horticultural records.</p>
+    <a class="btn-primary" href="/program">Open iOrchid</a>
+    <section class="card">
+      <h2>About iOrchid</h2>
+      <p>iOrchid Horticulture Management helps orchid growers manage their collection, including watering reminders, fertilizing schedules and growth tracking. Access your information from a phone, tablet or computer.</p>
+    </section>
+  </main>
+</body>
 </html>
