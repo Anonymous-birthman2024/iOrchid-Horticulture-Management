@@ -4,6 +4,7 @@ from datetime import datetime
 import subprocess
 import threading
 import time
+import sys
 
 import modules_DO_NOT_MODIFY.temp as temp
 import modules_DO_NOT_MODIFY.hume as hume
@@ -73,15 +74,21 @@ def main():
     for zone in ZONES:
         grapher.start_graph_refresh(zone, interval=300)
 
+    # Launch Flask with the same Python interpreter as this controller.
+    # Keep its output visible: hiding stderr concealed startup failures such as
+    # an already-occupied port, which can leave the browser talking to an old server.
     server_proc = subprocess.Popen(
-        ["/bin/bash", str(BASE_DIR / "activateServer.sh")],
+        [sys.executable, str(BASE_DIR / "public" / "webServer2026.py")],
         cwd=str(BASE_DIR),
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
-        start_new_session=True,
     )
-    print("[LOG] iOrchid server started on port 5002.")
+    time.sleep(1)
+    if server_proc.poll() is not None:
+        raise RuntimeError(
+            "The iOrchid web server failed to start. Check the Flask error above; "
+            "port 5002 may already be in use."
+        )
+    print("[LOG] iOrchid server is running on port 5002.")
 
     try:
         while running:
