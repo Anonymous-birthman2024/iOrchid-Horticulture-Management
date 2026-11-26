@@ -33,7 +33,7 @@ def zone_page(zone):
 def graph(zone, sensor, filename):
     if zone not in {f"Zone{i}" for i in range(1, 7)}:
         abort(404)
-    if sensor not in {"hum", "light", "temp"} or filename not in {"graph.png", "graph2.png"}:
+    if sensor not in {"hume", "light", "temp"} or filename not in {"graph.png", "graph2.png"}:
         abort(404)
     directory = PROJECT_DIR / zone / "data_DO_NOT_MODIFY" / "graphs" / sensor
     return send_from_directory(directory, filename)
