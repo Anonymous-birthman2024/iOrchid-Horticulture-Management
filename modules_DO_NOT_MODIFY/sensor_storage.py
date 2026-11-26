@@ -9,8 +9,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 def zone_data_dir(zone: str) -> Path:
-    return Path(zone) / "data_DO_NOT_MODIFY"
+    """Return an absolute data directory regardless of the process working directory."""
+    return PROJECT_ROOT / zone / "data_DO_NOT_MODIFY"
 
 
 def atomic_write_text(path: Path, content: str) -> None:
