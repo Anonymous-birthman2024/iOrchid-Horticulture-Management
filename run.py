@@ -1,4 +1,4 @@
-"""iOrchid controller entry point. Run this file once on the server."""
+"""iOrchid controller entry point. Run this file once on the server. Stop with Ctrl+C."""
 from pathlib import Path
 from datetime import datetime
 import subprocess
@@ -9,11 +9,6 @@ import modules_DO_NOT_MODIFY.temp as temp
 import modules_DO_NOT_MODIFY.hume as hume
 import modules_DO_NOT_MODIFY.light as light
 import modules_DO_NOT_MODIFY.grapher as grapher
-
-try:
-    from pynput import keyboard
-except ImportError:
-    keyboard = None
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "setupTimer.iOrchidConfig"
@@ -57,13 +52,6 @@ def data_logging(data_type, zone):
     except OSError as exc:
         print(f"[WARN] Cannot read {path}: {exc}")
 
-def on_press(key):
-    global running
-    if key == keyboard.KeyCode.from_char("q"):
-        print("[INFO] Q pressed, shutting down.")
-        running = False
-        return False
-
 def main():
     global running
     import os
@@ -90,13 +78,6 @@ def main():
     print("[LOG] iOrchid server started on port 5002.")
     graphInit()
 
-    listener = None
-    if keyboard is not None:
-        listener = keyboard.Listener(on_press=on_press)
-        listener.start()
-    else:
-        print("[WARN] pynput is unavailable; use Ctrl+C to stop the controller.")
-
     try:
         while running:
             for zone in ZONES:
@@ -112,8 +93,6 @@ def main():
         print("[INFO] Shutdown requested.")
     finally:
         running = False
-        if listener is not None:
-            listener.stop()
         if server_proc.poll() is None:
             server_proc.terminate()
             try:
