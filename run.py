@@ -67,6 +67,12 @@ def main():
             monitor_threads.append(thread)
     time.sleep(0.2)
 
+    # Generate the first set of images before Flask starts accepting requests.
+    # This prevents the browser from requesting graph files that do not exist yet.
+    graphInit()
+    for zone in ZONES:
+        grapher.start_graph_refresh(zone, interval=300)
+
     server_proc = subprocess.Popen(
         ["/bin/bash", str(BASE_DIR / "activateServer.sh")],
         cwd=str(BASE_DIR),
@@ -76,9 +82,6 @@ def main():
         start_new_session=True,
     )
     print("[LOG] iOrchid server started on port 5002.")
-    graphInit()
-    for zone in ZONES:
-        grapher.start_graph_refresh(zone, interval=300)
 
     try:
         while running:
