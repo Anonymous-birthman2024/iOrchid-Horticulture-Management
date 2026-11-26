@@ -31,7 +31,7 @@ def hum_act(zone):
     clock.iOrchid_seasonal_clock(zone)
 
     base = f"{zone}/data_DO_NOT_MODIFY"
-    with open(f"{base}/season(summer=1winter=2)", "r", encoding="utf-8") as f:
+    with open(f"{base}/season(summer=1winter=2).txt", "r", encoding="utf-8") as f:
         season = f.read().strip()
     with open(f"{base}/presets/hum.txt", "r", encoding="utf-8") as f:
         limits = [int(line.strip()) for line in f if line.strip()]
