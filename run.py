@@ -78,7 +78,14 @@ def main():
     # Keep its output visible: hiding stderr concealed startup failures such as
     # an already-occupied port, which can leave the browser talking to an old server.
     server_proc = subprocess.Popen(
-        [sys.executable, str(BASE_DIR / "public" / "webServer2026.py")],
+        [
+            sys.executable, "-m", "gunicorn",
+            "--workers", "1",
+            "--bind", "127.0.0.1:5002",
+            "--access-logfile", "-",
+            "--error-logfile", "-",
+            "public.webServer2026:app",
+        ],
         cwd=str(BASE_DIR),
         stdin=subprocess.DEVNULL,
     )
@@ -88,7 +95,7 @@ def main():
             "The iOrchid web server failed to start. Check the Flask error above; "
             "port 5002 may already be in use."
         )
-    print("[LOG] iOrchid server is running on port 5002.")
+    print("[LOG] iOrchid production server (Gunicorn) is running on 127.0.0.1:5002.")
 
     try:
         while running:
