@@ -81,7 +81,7 @@ def main():
         [
             sys.executable, "-m", "gunicorn",
             "--workers", "1",
-            "--bind", "127.0.0.1:5002",
+            "--bind", "0.0.0.0:5002",
             "--access-logfile", "-",
             "--error-logfile", "-",
             "public.webServer2026:app",
@@ -95,7 +95,7 @@ def main():
             "The iOrchid web server failed to start. Check the Flask error above; "
             "port 5002 may already be in use."
         )
-    print("[LOG] iOrchid production server (Gunicorn) is running on 127.0.0.1:5002.")
+    print("[LOG] iOrchid production server (Gunicorn) is running on 0.0.0.0:5002.")
 
     try:
         while running:
